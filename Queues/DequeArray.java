@@ -7,13 +7,13 @@ import java.util.Iterator;
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.StdIn;
 
-public class Deque<Item> implements Iterable<Item> {
+public class DequeArray<Item> implements Iterable<Item> {
     private int first;
     private int last;
     private Item[] dq;
     private int N = 0;
     
-    public Deque() {
+    public DequeArray() {
         // construct an empty deque
         dq = (Item[]) new Object[1];
         first = 0;
@@ -95,7 +95,7 @@ public class Deque<Item> implements Iterable<Item> {
         // unit testing (optional)
         int N = 5;
         if (args.length != 0) {N = Integer.parseInt(args[0]); }
-        Deque<Integer> dq = new Deque<Integer>();
+        DequeArray<Integer> dq = new DequeArray<Integer>();
         for (int i = 0; i < N; i++) {
             int value = StdIn.readInt();
             dq.addLast(value);
