@@ -1,5 +1,9 @@
 /** Abhimanyu Talwar's solutions to Princeton's Algorithms MOOC on Coursera **/
 /** https://github.com/talwarabhimanyu/                                     **/
+/** Memory requirements:                                                    **/ 
+/** Inner class := 3 references + overhead = 3*8+8 = 32                     **/
+/** Main Class: 2 references + 1 integer + overhead = 2*8 + 4 + 16 = 36     **/
+/** Total memory = 36 + 32n                                                 **/
 
 import java.util.Iterator;
 import edu.princeton.cs.algs4.StdOut;
