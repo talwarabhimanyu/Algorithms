@@ -1,5 +1,7 @@
 /** Abhimanyu Talwar's solutions to Princeton's Algorithms MOOC on Coursera **/
 /** https://github.com/talwarabhimanyu/                                     **/
+/** This solution will NOT achieve constant worst case times, it will do    **/
+/** constant amortized time. A Linked List implementation is prefered.      **/
 
 import java.util.Iterator;
 import edu.princeton.cs.algs4.StdOut;
