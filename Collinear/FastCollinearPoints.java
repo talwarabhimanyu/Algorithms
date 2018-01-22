@@ -17,27 +17,30 @@ public class FastCollinearPoints {
         int numPoints = points.length;
         numLines = 0;
         lineStack = new Stack<LineSegment>();
-        for (int i = 0; i < numPoints - 4; i++){
+        for (int i = 0; i < numPoints - 3; i++){
             Point p = points[i];
             if (p == null) throw new IllegalArgumentException("Point is null.");
             Arrays.sort(points, i + 1, numPoints, p.slopeOrder());
-            double slope1 = p.slopeTo(points[i + 1]);
-            double slope2 = p.slopeTo(points[i + 2]);
-            for (int j = i + 1; j < numPoints - 4; j++){
-                double slope3 = p.slopeTo(points[j + 2]);
-                if ((slope1 == slope2) && (slope1 == slope3)) {
-                    AddLine(new Point[]{p, points[j], points[j + 1], points[j + 2]});
+            int j = i + 1;
+            while (j < numPoints) {
+                int lo = j;
+                double slope = p.slopeTo(points[j++]);
+                int iCount  = 1;
+                while ((j < numPoints) && (p.slopeTo(points[j]) == slope)){
+                    j++;
+                    iCount++;
                 }
-                slope1 = slope2;
-                slope2 = slope3;
+                if (iCount >= 3) {
+                    AddLine(points, lo, j - 1);
+                }
             }
         }
     }
-    private void AddLine(Point[] p) {
-        Point min = p[0];
-        Point max = p[0];
-        for (int i = 1; i < p.length; i++) {
-            if (min.compareTo(p[i]) >= 0) min = p[i];
+    private void AddLine(Point[] p, int lo, int hi) {
+        Point min = p[lo];
+        Point max = p[lo];
+        for (int i = lo + 1; i <= hi; i++) {
+            if (min.compareTo(p[i]) > 0) min = p[i];
             if (max.compareTo(p[i]) < 0) max = p[i];
         }
         numLines++;
