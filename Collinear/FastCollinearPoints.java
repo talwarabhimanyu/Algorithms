@@ -31,15 +31,15 @@ public class FastCollinearPoints {
                     iCount++;
                 }
                 if (iCount >= 3) {
-                    AddLine(points, lo, j - 1);
+                    AddLine(points, i, lo, j - 1);
                 }
             }
         }
     }
-    private void AddLine(Point[] p, int lo, int hi) {
-        Point min = p[lo];
-        Point max = p[lo];
-        for (int i = lo + 1; i <= hi; i++) {
+    private void AddLine(Point[] p, int first, int lo, int hi) {
+        Point min = p[first];
+        Point max = p[first];
+        for (int i = lo; i <= hi; i++) {
             if (min.compareTo(p[i]) > 0) min = p[i];
             if (max.compareTo(p[i]) < 0) max = p[i];
         }
@@ -84,5 +84,5 @@ public class FastCollinearPoints {
             segment.draw();
         }
         StdDraw.show();
-}
+    }
 }
