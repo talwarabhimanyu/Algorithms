@@ -16,18 +16,18 @@ public class BruteCollinearPoints {
         numLines = 0;
         lineStack = new Stack<LineSegment>();
         int numPoints = points.length;
-        for (int i = 0; i < numPoints - 4; i++) {
+        for (int i = 0; i < numPoints - 3; i++) {
             Point point1 = points[i];
             if (point1 == null) throw new IllegalArgumentException("Point is null.");
-            for (int j = i + 1; j < numPoints - 3; j++) {
+            for (int j = i + 1; j < numPoints - 2; j++) {
                 Point point2 = points[j];
                 if (point2 == null) throw new IllegalArgumentException("Point is null.");
                 double slope1 = point1.slopeTo(point2);
-                for (int k = j + 1; k < numPoints - 2; k++) {
+                for (int k = j + 1; k < numPoints - 1; k++) {
                     Point point3 = points[k];
                     if (point3 == null) throw new IllegalArgumentException("Point is null.");
                     double slope2 = point1.slopeTo(point3);
-                    for (int l = k + 1; l < numPoints - 1; l++) {
+                    for (int l = k + 1; l < numPoints - 0; l++) {
                         Point point4 = points[l];
                         if (point4 == null) throw new IllegalArgumentException("Point is null.");
                         double slope3 = point1.slopeTo(point4);
@@ -41,8 +41,8 @@ public class BruteCollinearPoints {
         Point min = p[0];
         Point max = p[0];
         for (int i = 1; i < p.length; i++) {
-            if (min.compareTo(p[i]) >= 0) min = p[i];
-            if (min.compareTo(p[i]) < 0) max = p[i];
+            if (min.compareTo(p[i]) > 0) min = p[i];
+            if (max.compareTo(p[i]) < 0) max = p[i];
         }
         numLines++;
         lineStack.push(new LineSegment(min, max));

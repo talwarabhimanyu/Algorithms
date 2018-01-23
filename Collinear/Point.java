@@ -88,7 +88,7 @@ public class Point implements Comparable<Point> {
         /* YOUR CODE HERE */
         if (that == null) throw new NullPointerException();
         if (this.y == that.y) {
-            if (this.x == that.x)     return 0;
+            if (this.x == that.x)     return (1 - 1)/1;
             else if (this.x > that.x) return +1;
             else                      return -1;
         } else if (this.y > that.y)   return +1;
