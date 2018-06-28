@@ -151,13 +151,13 @@ public class Board {
                     public Board next(){
                         if (this.hasNext()) {
                             Board newBoard = new Board(Board.this.getBlockCopy());
-                            int[] zeros = Board.this.getZeros();
+                            int[] zeros = newBoard.getZeros();
                             int i = zeros[0];
                             int j = zeros[1];
                             while (!newBoard.validIndex(i + this.offset[0], j + this.offset[1])) {
                                 this.updateOffset();
                             }
-                            newBoard.swapZero(offset[0], offset[1]);
+                            newBoard.swapZero(this.offset[0], this.offset[1]);
                             this.count--;
                             this.updateOffset();
                             return newBoard;
@@ -189,12 +189,16 @@ public class Board {
         int[][] block1 = new int[n][n];
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                block1[i][j] = i*n + j;
+                block1[i][j] = i*n + j + 1;
             }
         }
+        block1[n-1][n-1] = 0;
+        // Test 1
+        System.out.println("Test 1 ...");
         Board board1 = new Board(block1);
         System.out.println(board1.toString());
         if (board1.isGoal()) {System.out.println("Goal!");}
+        else                 {System.out.printf("No goal. Man. = %d\n", board1.manhattan());}
         Iterator<Board> iter1 = (board1.neighbors()).iterator();
         while(iter1.hasNext()){
             Board neighbor = iter1.next();
@@ -202,5 +206,26 @@ public class Board {
             if (neighbor.isGoal()) {System.out.println("Goal!");}
             else                   {System.out.println("No goal.");}
         }
+        // Test 2
+        System.out.println("Test 2 ...");
+        int[][] block2 = new int[block1.length][];
+        for (int i = 0; i < block1.length; i++){
+            block2[i] = Arrays.copyOf(block1[i], block1.length);
+        }
+        block2[2][2] = 6;
+        block2[1][2] = 5;
+        block2[1][1] = 0;
+        Board board2 = new Board(block2);
+        System.out.println(board2.toString());
+        if (board2.isGoal()) {System.out.println("Goal!");}
+        else                 {System.out.printf("No goal. Man. = %d\n", board2.manhattan());}
+        Iterator<Board> iter2 = (board2.neighbors()).iterator();
+        while(iter2.hasNext()){
+            Board neighbor = iter2.next();
+            System.out.println(neighbor.toString());
+            if (neighbor.isGoal()) {System.out.println("Goal!");}
+            else                   {System.out.println("No goal.");}
+        }
+        
     }
 }
