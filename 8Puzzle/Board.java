@@ -14,6 +14,7 @@ public class Board implements Comparable<Board>{
     private int[] zeros;
     private int numMoves;
     private Board pred;
+    private int manDist;
     
     public Board(int[][] blocks) {
         // construct a board from an n-by-n array of blocks
@@ -24,6 +25,7 @@ public class Board implements Comparable<Board>{
         this.zeros = new int[]{-1, -1};
         this.numMoves = 0;
         this.pred = null;
+        this.manDist = this.calcManhattan();
     }
     public int[][] getBlocks(){
         return this.blocks;
@@ -58,8 +60,8 @@ public class Board implements Comparable<Board>{
     public Board getPred(){
         return this.pred;
     }
-    public boolean validIndex(int i, int j) {
-        if ((i < 0) || (j < 0) || (i >= this.n) || (j >= this.n)) {return false;}
+    public static boolean validIndex(int i, int j, int size) {
+        if ((i < 0) || (j < 0) || (i >= size) || (j >= size)) {return false;}
         return true;
     }
     public int neighborCount(){
@@ -71,13 +73,12 @@ public class Board implements Comparable<Board>{
         if (zeros[1] != this.n) {count++;}
         return count;
     }
-    public void swapZero(int offset_i, int offset_j){
-        int[] zeros = this.getZeros();
+    public static void swapZero(int[] zeros, int offset_i, int offset_j, int[][] arr){
         int i = zeros[0];
         int j = zeros[1];
-        int num = this.blocks[i + offset_i][j + offset_j];
-        this.blocks[i][j] = num;
-        this.blocks[i + offset_i][j + offset_j] = 0;
+        int num = arr[i + offset_i][j + offset_j];
+        arr[i][j] = num;
+        arr[i + offset_i][j + offset_j] = 0;
     }
     public int[][] getBlockCopy(){
         int [][] newBlocks = new int[this.blocks.length][];
@@ -101,6 +102,9 @@ public class Board implements Comparable<Board>{
         return countOutOfPlace;
     }
     public int manhattan() {
+        return this.manDist;
+    }
+    private int calcManhattan() {
         // sum of Manhattan distances between blocks and goal
         int manhattanDist = 0;
         for (int i = 0; i < this.n; i++){
@@ -116,7 +120,7 @@ public class Board implements Comparable<Board>{
     }
     public boolean isGoal() {
         // is this board the goal board?
-        return (hamming() == 0);
+        return (this.manDist == 0);
     }
     public int compareTo(Board that) {
         if (that == null) throw new NullPointerException();
@@ -178,17 +182,18 @@ public class Board implements Comparable<Board>{
                     @Override
                     public Board next(){
                         if (this.hasNext()) {
-                            Board newBoard = new Board(Board.this.getBlockCopy());
-                            int[] zeros = newBoard.getZeros();
+                            //Board newBoard = new Board(Board.this.getBlockCopy());
+                            int[][] newBlocks = Board.this.getBlockCopy();
+                            int[] zeros = Board.this.getZeros();
                             int i = zeros[0];
                             int j = zeros[1];
-                            while (!newBoard.validIndex(i + this.offset[0], j + this.offset[1])) {
+                            while (!validIndex(i + this.offset[0], j + this.offset[1], Board.this.n)) {
                                 this.updateOffset();
                             }
-                            newBoard.swapZero(this.offset[0], this.offset[1]);
+                            swapZero(zeros, this.offset[0], this.offset[1], newBlocks);
                             this.count--;
                             this.updateOffset();
-                            return newBoard;
+                            return new Board(newBlocks);
                         }
                         return null;
                     }
@@ -232,7 +237,7 @@ public class Board implements Comparable<Board>{
             Board neighbor = iter1.next();
             System.out.println(neighbor.toString());
             if (neighbor.isGoal()) {System.out.println("Goal!");}
-            else                   {System.out.println("No goal.");}
+            else                   {System.out.printf("No goal. Man. = %d\n", neighbor.manhattan());}
         }
         // Test 2
         System.out.println("Test 2 ...");
@@ -252,8 +257,9 @@ public class Board implements Comparable<Board>{
             Board neighbor = iter2.next();
             System.out.println(neighbor.toString());
             if (neighbor.isGoal()) {System.out.println("Goal!");}
-            else                   {System.out.println("No goal.");}
+            else                   {System.out.printf("No goal. Man. = %d\n", neighbor.manhattan());}
         }
+        System.out.println(board1.equals(board1));
         
     }
 }
