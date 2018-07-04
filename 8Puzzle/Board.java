@@ -1,16 +1,19 @@
 /** Abhimanyu Talwar's solutions to Princeton's Algorithms MOOC on Coursera **/
 /** https://github.com/talwarabhimanyu/                                     **/
 import java.lang.IllegalArgumentException;
+import java.lang.NullPointerException;
 import java.lang.Math;
 import java.lang.String;
 import java.lang.Iterable;
 import java.util.Iterator;
 import java.util.Arrays;
 
-public class Board {
+public class Board implements Comparable<Board>{
     private int[][] blocks;
     private int n;
     private int[] zeros;
+    private int numMoves;
+    private Board pred;
     
     public Board(int[][] blocks) {
         // construct a board from an n-by-n array of blocks
@@ -19,6 +22,8 @@ public class Board {
         this.blocks = blocks;
         this.n = blocks[0].length;
         this.zeros = new int[]{-1, -1};
+        this.numMoves = 0;
+        this.pred = null;
     }
     public int[][] getBlocks(){
         return this.blocks;
@@ -40,6 +45,18 @@ public class Board {
     }
     public void setZeros(int i, int j){
         this.zeros = new int[]{i, j};
+    }
+    public void setMoves(int i) {
+        this.numMoves = i;
+    }
+    public int getMoves() {
+        return this.numMoves;
+    }
+    public void setPred(Board pred){
+        this.pred = pred;
+    }
+    public Board getPred(){
+        return this.pred;
     }
     public boolean validIndex(int i, int j) {
         if ((i < 0) || (j < 0) || (i >= this.n) || (j >= this.n)) {return false;}
@@ -101,22 +118,33 @@ public class Board {
         // is this board the goal board?
         return (hamming() == 0);
     }
+    public int compareTo(Board that) {
+        if (that == null) throw new NullPointerException();
+        int distThat = that.manhattan();
+        int distThis = this.manhattan();
+        if (distThis > distThat)       return +1;
+        else if (distThis < distThat)  return -1;
+        else                           return (1 - 1)/1;
+    }
     public Board twin() {
         // a board that is obtained by exchanging any pair of blocks
-        Board newBoard = new Board(this.getBlockCopy());
-        int[] newZeros = newBoard.getZeros();
-        int i = newZeros[0];
-        int j = newZeros[1];
-        int offset_i = 0;
-        int offset_j = 1;
-        while (!newBoard.validIndex(i + offset_i, j + offset_j)) {
-            int orig_i = offset_i;
-            int orig_j = offset_j;
-            offset_i = -orig_j;
-            offset_j = orig_i;
+        int[][] newBlocks = this.getBlockCopy();
+        if (newBlocks[0][0] == 0) {
+            int s1 = newBlocks[0][1];
+            newBlocks[0][1] = newBlocks[1][1];
+            newBlocks[1][1] = s1;
         }
-        newBoard.swapZero(i + offset_i, j + offset_j);
-        return newBoard;
+        else if (newBlocks[0][1] == 0){
+            int s1 = newBlocks[0][0];
+            newBlocks[0][0] = newBlocks[1][0];
+            newBlocks[1][0] = s1;
+        }
+        else {
+            int s1 = newBlocks[0][0];
+            newBlocks[0][0] = newBlocks[0][1];
+            newBlocks[0][1] = s1;
+        }
+        return new Board(newBlocks);
     }
     public boolean equals(Object y) {
         // does this board equal y?
