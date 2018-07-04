@@ -20,36 +20,34 @@ public class Solver {
         pqTwin.insert(initial.twin());
         MinPQ<Board> pq = pqInit;
         Board minKey = null;
-        boolean useInitial = true;
+        boolean useInitBoard = true;
         boolean solved = false;
         while (!solved) {
             minKey = pq.delMin();
             if (minKey.isGoal()) {
                 solved = true;
-                if (useInitial) {
+                if (useInitBoard) {
                     this.solvable = true;
                     this.goalBoard = minKey;
+                }
+                else {
+                    this.solvable = false;
                 }
                 break;
             }
             Iterator<Board> iter = (minKey.neighbors()).iterator();
             while (iter.hasNext()){
                 Board nextBoard = iter.next();
-                if (!minKey.equals(nextBoard.getPred())) {
+                if (!nextBoard.equals(minKey.getPred())) {
                     nextBoard.setMoves(minKey.getMoves() + 1);
                     nextBoard.setPred(minKey);
                     pq.insert(nextBoard);
                 }
             }
-            if (useInitial) {pq = pqTwin;}
+            if (useInitBoard) {pq = pqTwin;}
             else            {pq = pqInit;}
-            useInitial = !useInitial;
+            useInitBoard = !useInitBoard;
         }
-        if (solved) {
-            goalBoard = minKey;
-            solvable = true;
-        }
-        //if initial is not solveable then find a solution to its twin (using A*)
     }
     public boolean isSolvable()            {
     // is the initial board solvable?
