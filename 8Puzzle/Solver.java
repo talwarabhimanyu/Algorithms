@@ -7,46 +7,91 @@ import edu.princeton.cs.algs4.MinPQ;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
 import java.lang.IllegalArgumentException;
+import java.lang.NullPointerException;
 
 public class Solver {
-    private Board goalBoard;
+    private class SearchNode implements Comparable<SearchNode>{
+        private Board board;
+        private SearchNode parent;
+        private SearchNode child;
+        private int moves;
+        private SearchNode(Board board) {
+            this.board = board;
+            this.parent = null;
+            this.child = null;
+            this.moves = 0;
+        }
+        public int compareTo(SearchNode that) {
+            if (that == null) throw new NullPointerException();
+            int thisPriority = this.board.manhattan() + this.moves;
+            int thatPriority = that.board.manhattan() + that.moves;
+            if (thisPriority > thatPriority)       return +1;
+            else if (thisPriority < thatPriority)  return -1;
+            else                                   return (1 - 1)/1;
+        }
+        public SearchNode twin() {
+            Board twinBoard = this.board.twin();
+            return new SearchNode(twinBoard);
+        }
+    }
+    
+    private final SearchNode rootNode;
     private boolean solvable;
+    private int movesToSolve;
     public Solver(Board initial) {
         // find a solution to the initial board (using the A* algorithm)
         if (initial == null) {throw new IllegalArgumentException();}
-        MinPQ<Board> pqInit = new MinPQ<Board>();
-        pqInit.insert(initial);
-        MinPQ<Board> pqTwin = new MinPQ<Board>();
-        pqTwin.insert(initial.twin());
-        MinPQ<Board> pq = pqInit;
-        Board minKey = null;
+        movesToSolve = 0;
+        this.rootNode = new SearchNode(initial);
+        MinPQ<SearchNode> pqInit = new MinPQ<SearchNode>();
+        pqInit.insert(this.rootNode);
+        MinPQ<SearchNode> pqTwin = new MinPQ<SearchNode>();
+        pqTwin.insert(this.rootNode.twin());
+        MinPQ<SearchNode> pq = pqInit;
         boolean useInitBoard = true;
         boolean solved = false;
         while (!solved) {
-            minKey = pq.delMin();
-            if (minKey.isGoal()) {
+            SearchNode minKey = pq.delMin();
+            SearchNode parentNode = minKey.parent;
+            if (minKey.board.isGoal()) {
                 solved = true;
                 if (useInitBoard) {
+                    movesToSolve = minKey.moves;
                     this.solvable = true;
-                    this.goalBoard = minKey;
+                    this.setChildLinks(minKey);
                 }
                 else {
+                    // If we have reached the goal using the Twin, then
+                    // the original board was not solvable.
                     this.solvable = false;
                 }
                 break;
             }
-            Iterator<Board> iter = (minKey.neighbors()).iterator();
+            Iterator<Board> iter = (minKey.board.neighbors()).iterator();
             while (iter.hasNext()){
                 Board nextBoard = iter.next();
-                if (!nextBoard.equals(minKey.getPred())) {
-                    nextBoard.setMoves(minKey.getMoves() + 1);
-                    nextBoard.setPred(minKey);
-                    pq.insert(nextBoard);
-                }
+                // If neighboring board is not the same as parent's board, add it to pq
+                if ((parentNode == null) || (!nextBoard.equals(parentNode.board))) {
+                    SearchNode childNode = new SearchNode(nextBoard);
+                    childNode.parent = minKey;
+                    // Moves need to be updated before inserting into the pq
+                    childNode.moves = minKey.moves + 1;
+                    pq.insert(childNode);
+                }                
             }
             if (useInitBoard) {pq = pqTwin;}
-            else            {pq = pqInit;}
+            else              {pq = pqInit;}
+            // Toggle between the initial board and its twin
             useInitBoard = !useInitBoard;
+        }
+    }
+    private void setChildLinks(SearchNode node) {
+        SearchNode parentNode = node.parent;
+        SearchNode currNode = node;
+        while (parentNode != null) {
+            parentNode.child = currNode;
+            currNode = parentNode;
+            parentNode = currNode.parent;
         }
     }
     public boolean isSolvable()            {
@@ -55,7 +100,7 @@ public class Solver {
     }
     public int moves() {
         // min number of moves to solve initial board; -1 if unsolvable
-        if (this.solvable) {return this.goalBoard.getMoves();}
+        if (this.solvable) {return this.movesToSolve;}
         else               {return -1;}
     }
     public Iterable<Board> solution() {
@@ -64,16 +109,16 @@ public class Solver {
             @Override
             public Iterator<Board> iterator(){
                 return new Iterator<Board> () {
-                    private Board currBoard = Solver.this.goalBoard;
+                    private SearchNode currNode = Solver.this.rootNode;
                     @Override
                     public boolean hasNext(){
-                        return (this.currBoard != null);
+                        return (this.currNode != null);
                     }
                     @Override
                     public Board next(){
                         if (this.hasNext()) {
-                            Board thisBoard = this.currBoard;
-                            this.currBoard = this.currBoard.getPred();
+                            Board thisBoard = this.currNode.board;
+                            this.currNode = this.currNode.child;
                             return thisBoard;
                         }
                         else {return null;}
